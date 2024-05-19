@@ -29,7 +29,6 @@ contract NFTMarketplace is
         uint price;
         bool sold;
         bool live;
-        // bool biddable;
         uint bids;
         uint duration;
     }
@@ -38,8 +37,6 @@ contract NFTMarketplace is
         address bidder;
         uint price;
         uint timestamp;
-        // bool refunded;
-        // bool won;
     }
 
     uint listingPrice = 0.025 ether;
@@ -47,6 +44,7 @@ contract NFTMarketplace is
 
     Counters.Counter private _listedItems;
     Counters.Counter private _tokenIds;
+    Counters.Counter private _totalAuctions;
 
     mapping(string => bool) private _usedTokenURIs;
     mapping(uint256 => NftItem) private _idToNftItem;
@@ -54,9 +52,7 @@ contract NFTMarketplace is
     mapping(uint => AuctionStruct) auctionedItem;
     mapping(uint => bool) auctionedItemExist;
     mapping(uint => BidderStruct[]) biddersOf;
-    mapping(uint => mapping(address => bool)) hasBid; // Mapping to track if a user has bid on a specific token
-
-    // uint[] private activeAuctions;
+    mapping(uint => mapping(address => bool)) hasBid;
 
     event NftItemCreated(
         uint tokenId,
@@ -258,6 +254,7 @@ contract NFTMarketplace is
         // Mark the item as being auctioned
         auctionedItemExist[tokenId] = true;
         // activeAuctions.push(tokenId); // Add to active auctions
+        _totalAuctions.increment();
     }
 
     function placeBid(uint tokenId) public payable {
@@ -289,10 +286,13 @@ contract NFTMarketplace is
     }
 
     function getAuctions() public view returns (AuctionStruct[] memory) {
-        AuctionStruct[] memory items = new AuctionStruct[](_tokenIds.current());
+        // AuctionStruct[] memory items = new AuctionStruct[](_tokenIds.current());
+        AuctionStruct[] memory items = new AuctionStruct[](
+            _totalAuctions.current()
+        );
         uint index = 0;
         for (uint i = 1; i <= _tokenIds.current(); i++) {
-            if (auctionedItemExist[i]) {
+            if (auctionedItemExist[i] && auctionedItem[i].live) {
                 items[index] = auctionedItem[i];
                 index++;
             }
@@ -313,10 +313,10 @@ contract NFTMarketplace is
                 owner() == msg.sender,
             "Unauthorized entity"
         );
-        // require(
-        //     auctionedItem[tokenId].duration < block.timestamp,
-        //     "Auction still running"
-        // );
+        require(
+            auctionedItem[tokenId].duration < block.timestamp,
+            "Auction still running"
+        );
 
         if (auctionedItem[tokenId].bids == 0) {
             // No bids, return NFT to the seller
@@ -361,7 +361,7 @@ contract NFTMarketplace is
             // Mark the auction as sold and the winner
             auctionedItem[tokenId].sold = true;
             auctionedItem[tokenId].winner = winner.bidder;
-            auctionedItemExist[tokenId] = false;
+            // auctionedItemExist[tokenId] = false;
 
             // Emit the event
             emit NFTSold(
@@ -373,45 +373,29 @@ contract NFTMarketplace is
             );
         }
 
-        // Clear the bidders array
-        delete biddersOf[tokenId];
+        auctionedItemExist[tokenId] = false;
 
         // Clear the hasBid mapping for the token
         address[] memory bidders = new address[](biddersOf[tokenId].length);
         for (uint i = 0; i < biddersOf[tokenId].length; i++) {
             bidders[i] = biddersOf[tokenId][i].bidder;
         }
+        // Clear the bidders array
+        delete biddersOf[tokenId];
         for (uint i = 0; i < bidders.length; i++) {
             delete hasBid[tokenId][bidders[i]];
         }
 
         // Clear the auctioned item
         delete auctionedItem[tokenId];
-
-        // Clear the bidders array
-        // BidderStruct[] storage bidders = biddersOf[tokenId];
-        // for (uint i = 0; i < bidders.length; i++) {
-        //     delete hasBid[tokenId][bidders[i].bidder];
-        // }
-        // delete biddersOf[tokenId];
-        // delete auctionedItem[tokenId];
-
-        // // Remove from active auctions
-        // for (uint i = 0; i < activeAuctions.length; i++) {
-        //     if (activeAuctions[i] == tokenId) {
-        //         activeAuctions[i] = activeAuctions[activeAuctions.length - 1];
-        //         activeAuctions.pop();
-        //         break;
-        //     }
-        // }
+        _totalAuctions.decrement();
     }
 
-    function closeAuctionsFromCronjob() public onlyOwner {
+    function closeAuctionsFromCronjob() public {
         for (uint i = 1; i <= _tokenIds.current(); i++) {
             if (
-                auctionedItemExist[i]
-                // &&
-                // auctionedItem[i].duration < block.timestamp
+                auctionedItemExist[i] &&
+                auctionedItem[i].duration < block.timestamp
             ) {
                 pickWinner(i);
             }

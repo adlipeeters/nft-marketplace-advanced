@@ -119,8 +119,7 @@ const NFT = ({ nft, page }: { nft: NFTInterface, page: NFTActionsFor }) => {
                     <div className='flex flex-col gap-y-2'>
                         <h3>{nft?.meta?.name}</h3>
                         <p className='opacity-75'>{nft?.meta?.description}</p>
-                        {/* <p className='opacity-75'>{nft?.owner ? truncate(nft?.owner, 4, 4, 11) : ''}</p> */}
-                        <p className='opacity-75'>Owner: {nft?.owner ? truncate({ text: nft?.owner, startChars: 4, endChars: 4, maxLength: 11 }) : ''}</p>
+                        {page === NFTActionsFor.saleNFTList ? <p className='opacity-75'>Owner: {nft?.owner ? truncate({ text: nft?.owner, startChars: 4, endChars: 4, maxLength: 11 }) : ''}</p> : ''}
                     </div>
                     <div className='flex flex-col gap-2'>
                         {nft?.meta?.attributes?.map((attr: { trait_type: string, value: string }, index: number) => (
@@ -130,15 +129,20 @@ const NFT = ({ nft, page }: { nft: NFTInterface, page: NFTActionsFor }) => {
                             </div>
                         ))}
                     </div>
+                    <div className="flex justify-between">
+                        <p>{nft.price} ETH</p>
+                        {nft.isListed ?
+                            <Badge className='bg-green-500 text-white'>NFT On Sale</Badge>
+                            :
+                            <Badge variant={'destructive'}>Not Listed</Badge>
+                        }
+                    </div>
                     {page === NFTActionsFor.saleNFTList ?
                         (
-                            <div className="flex justify-between">
-                                <p>{nft.price} ETH</p>
-                                {nft.isListed ?
-                                    <Badge className='bg-green-500 text-white'>NFT On Sale</Badge>
-                                    :
-                                    <Badge variant={'destructive'}>Not Listed</Badge>
-                                }
+                            <div>
+                                <Button disabled={disabled || wallet.toLowerCase() === (nft?.owner?.toLowerCase() || '')} onClick={buyListedNFT}>
+                                    {wallet.toLowerCase() === (nft?.owner?.toLowerCase() || '') ? "You can't buy your own NFT" : "Buy NFT"}
+                                </Button>
                             </div>
                         )
                         : ''}
@@ -164,11 +168,12 @@ const NFT = ({ nft, page }: { nft: NFTInterface, page: NFTActionsFor }) => {
                             </TooltipProvider>
                         </div>
                         :
-                        <div>
-                            <Button disabled={disabled || wallet.toLowerCase() === (nft?.owner?.toLowerCase() || '')} onClick={buyListedNFT}>
-                                {wallet.toLowerCase() === (nft?.owner?.toLowerCase() || '') ? "You can't buy your own NFT" : "Buy NFT"}
-                            </Button>
-                        </div>
+                        // <div>
+                        //     <Button disabled={disabled || wallet.toLowerCase() === (nft?.owner?.toLowerCase() || '')} onClick={buyListedNFT}>
+                        //         {wallet.toLowerCase() === (nft?.owner?.toLowerCase() || '') ? "You can't buy your own NFT" : "Buy NFT"}
+                        //     </Button>
+                        // </div>
+                        ''
                     }
                     {page === NFTActionsFor.auctionNFTList ? '' : ''}
                 </div>

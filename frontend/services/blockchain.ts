@@ -176,12 +176,14 @@ const getOwnerNFTs = async () => {
                 const meta = await metaRes.json();
                 ownerTokens.push({
                     tokenId: Number(item.tokenId),
-                    tokenURI, price: parseFloat(ethers.utils.formatEther(item.price)),
+                    tokenURI,
+                    price: parseFloat(ethers.utils.formatEther(item.price)),
                     isListed: item.isListed,
                     meta
                 });
             }
         }
+        console.log(ownerTokens)
         store.dispatch(setOwnerNFTs(ownerTokens))
     } catch (error) {
         console.error("Error fetching NFTs:", error);
@@ -218,7 +220,8 @@ const getNftsOnSale = async () => {
 }
 
 const offerAuction = async (tokenId: number, sec: number, min: number, hour: number, day: number) => {
-    console.log('offerAuction:', tokenId)
+    // console.log('offerAuction:', tokenId)
+    // return
     try {
         if (!ethereum) return alert('Please install Metamask');
         const contract = await getEthereumContract();
@@ -236,6 +239,7 @@ const getAuctions = async () => {
         if (!ethereum) return alert('Please install Metamask');
         const contract = await getEthereumContract();
         const auctions = await contract.getAuctions();
+        console.log('Auctionssssssssssssssssssssssssss:', auctions);
         console.log('Auctions:', auctions);
 
         let auctionsList = []
