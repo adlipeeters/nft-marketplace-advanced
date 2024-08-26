@@ -96,7 +96,7 @@ export const ChangeNFTPrice = () => {
         >
             <DialogContent className="sm:max-w-[750px]">
                 <DialogHeader>
-                    <DialogTitle>Change your NFT's price</DialogTitle>
+                    <DialogTitle>{"Change your NFT's price"}</DialogTitle>
                     <DialogDescription>
                     </DialogDescription>
                 </DialogHeader>
