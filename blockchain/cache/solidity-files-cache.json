@@ -72,8 +72,8 @@
       "artifacts": []
     },
     "/home/adli-2000/marketplace_nft/blockchain/contracts/NFTMarketplace.sol": {
-      "lastModificationDate": 1716128746457,
-      "contentHash": "1b7db6c290269dc7d2ccc5f8ff597c63",
+      "lastModificationDate": 1716129079537,
+      "contentHash": "a074b9410847a35b87f98ac3b2753cbc",
       "sourceName": "contracts/NFTMarketplace.sol",
       "solcConfig": {
         "version": "0.8.11",

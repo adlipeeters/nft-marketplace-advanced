@@ -1,27 +1,16 @@
 require('@nomiclabs/hardhat-waffle')
 require('dotenv').config()
-
-// const fs = require('fs-extra');
-// const path = require('path');
-
-// task('copy-artifacts', 'Copy artifacts to multiple directories')
-//     .addOptionalParam('dest', 'The destination directory', '../frontend/abis,../backend/contract_data/abis')
-//     .setAction(async ({ dest }, hre) => {
-//         const destinations = dest.split(',');
-
-//         for (const destination of destinations) {
-//             const fullPath = path.resolve(__dirname, destination);
-//             await fs.ensureDir(fullPath);
-//             await fs.copy(hre.config.paths.artifacts, fullPath);
-//             console.log(`Artifacts copied to ${fullPath}`);
-//         }
-//     });
+const { ALCHEMY_API_URL, PRIVATE_KEY } = process.env;
 
 module.exports = {
-    defaultNetwork: 'localhost',
+    // defaultNetwork: 'localhost',
     networks: {
-        localhost: {
-            url: 'http://127.0.0.1:8545',
+        // localhost: {
+        //     url: 'http://127.0.0.1:8545',
+        // },
+        sepolia: {
+            url: ALCHEMY_API_URL,
+            accounts: [`0x${PRIVATE_KEY}`],
         },
     },
     solidity: {
