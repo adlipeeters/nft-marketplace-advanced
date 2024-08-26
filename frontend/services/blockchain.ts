@@ -5,8 +5,9 @@ import address from '@/contracts/contractAddress.json'
 // import abi from '@/abis/contracts/NFTMarketplace.sol/NFTMarketplace.json'
 import abi from '@/abis/NFTMarketplace.json'
 import { Bidder, TruncateParams } from '@/types'
-import { get } from 'http'
 import { format } from "date-fns";
+import { config } from 'dotenv';
+config();
 
 const { setWallet, setOwnerNFTs, setOnSaleNFTs, setAuctions } = globalActions
 const ContractAddress = address.address
@@ -25,8 +26,8 @@ const getEthereumContract = async () => {
     const accounts = await ethereum?.request?.({ method: 'eth_accounts' })
     const provider = accounts?.[0]
         ? new ethers.providers.Web3Provider(ethereum)
-        // : new ethers.providers.JsonRpcProvider(process.env.NEXT_APP_RPC_URL)
-        : new ethers.providers.JsonRpcProvider('http://localhost:8545')
+        : new ethers.providers.JsonRpcProvider(process.env.NEXT_PUBLIC_APP_RPC_URL)
+        // : new ethers.providers.JsonRpcProvider('http://localhost:8545')
     const wallet = accounts?.[0] ? null : ethers.Wallet.createRandom()
     const signer = provider.getSigner(accounts?.[0] ? undefined : wallet?.address)
 
